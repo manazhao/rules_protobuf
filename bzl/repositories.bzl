@@ -166,6 +166,15 @@ REPOSITORIES = {
         "build_file": str(Label("//bzl:build_file/com_github_golang_protobuf.BUILD")),
     },
 
+    "com_github_gogo_protobuf": {
+        "kind": "new_go_repository",
+        "name": "com_github_gogo_protobuf",
+        #"remote": "https://github.com/gogo/protobuf",
+        "importpath": "github.com/gogo/protobuf", # should check for 'git'
+        "commit": "a11c89fbb0ad4acfa8abc4a4d5f7e27c477169b1", # Sept 13 2016
+        #"build_file": str(Label("//bzl:build_file/com_github_gogo_protobuf.BUILD")),
+    },
+
     "org_golang_google_grpc": {
         "kind": "new_git_repository",
         "name": "org_golang_google_grpc",

@@ -101,9 +101,11 @@ CLASS = struct(
         default_options = [],
         requires = [
             "com_github_golang_protobuf",
+            "com_github_gogo_protobuf",
         ],
         compile_deps = [
-            "@com_github_golang_protobuf//:proto",
+            "@com_github_gogo_protobuf//proto:go_default_library",
+            "@com_github_gogo_protobuf//gogoproto:go_default_library",
         ],
     ),
 

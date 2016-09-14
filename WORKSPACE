@@ -6,8 +6,7 @@ workspace(name = "org_pubref_rules_protobuf")
 
 git_repository(
     name = "io_bazel_rules_go",
-    #tag = "0.0.4",
-    commit = "fbd0bc8f5cf2526533c9b9846db0f2f242113faf",
+    commit = "2090e4246b9caea43a5e1e9e7ecfda6c5fcc7516", # +gazelle
     remote = "https://github.com/bazelbuild/rules_go.git",
 )
 
@@ -31,6 +30,7 @@ protobuf_repositories(
     verbose = 0,
     with_cpp = True,
     with_go = True,
+    with_gogo = True,
     with_grpc_gateway = True,
     with_java = True,
     with_javanano = True,

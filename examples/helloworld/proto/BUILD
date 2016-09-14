@@ -5,6 +5,8 @@ load("//bzl:go/rules.bzl", "go_proto_library")
 load("//bzl:python/rules.bzl", "py_proto_library")
 load("//bzl:java/rules.bzl", "java_proto_library")
 load("//bzl:js/rules.bzl", "js_proto_compile")
+load("//bzl:gogo/rules.bzl", "gogo_proto_library")
+load("//bzl:go/rules.bzl", "go_proto_library")
 
 filegroup(
     name = "protos",
@@ -13,7 +15,7 @@ filegroup(
 
 # This duplication of rules is probably why an aspect-based implementation makes sense.
 
-go_proto_library(
+gogo_proto_library(
     name = "go",
     proto_deps = [
         "//examples/proto:go_default_library",
@@ -22,6 +24,7 @@ go_proto_library(
     verbose = 1,
     with_grpc = True,
 )
+
 
 cc_proto_library(
     name = "cpp",

@@ -2,6 +2,7 @@ load("//bzl:base/class.bzl", BASE = "CLASS")
 load("//bzl:cpp/class.bzl", CPP = "CLASS")
 load("//bzl:csharp/class.bzl", CSHARP = "CLASS")
 load("//bzl:go/class.bzl", GO = "CLASS")
+load("//bzl:gogo/class.bzl", GOGO = "CLASS")
 load("//bzl:python/class.bzl", PYTHON = "CLASS")
 load("//bzl:ruby/class.bzl", RUBY = "CLASS")
 load("//bzl:java/class.bzl", JAVA = "CLASS")
@@ -18,6 +19,7 @@ CLASSES = {
     JAVANANO.name: JAVANANO,
     JS.name: JS,
     GO.name: GO,
+    GOGO.name: GOGO,
     PYTHON.name: PYTHON,
     RUBY.name: RUBY,
 }

@@ -3,10 +3,10 @@ package(default_visibility = ["//visibility:public"])
 load("//bzl:cpp/rules.bzl", "cc_proto_library")
 load("//bzl:csharp/rules.bzl", "csharp_proto_library")
 load("//bzl:go/rules.bzl", "go_proto_library")
+load("//bzl:gogo/rules.bzl", "gogo_proto_library")
 load("//bzl:java/rules.bzl", "java_proto_library")
 load("//bzl:ruby/rules.bzl", "ruby_proto_library")
 load("//bzl:js/rules.bzl", "js_proto_compile")
-
 
 filegroup(
     name = "protos",
@@ -15,11 +15,17 @@ filegroup(
     ],
 )
 
-go_proto_library(
+gogo_proto_library(
     name = "go_default_library",
     protos = [":protos"],
     verbose = 1,
 )
+
+# go_proto_library(
+#     name = "gogo",
+#     protos = [":protos"],
+#     verbose = 1,
+# )
 
 cc_proto_library(
     name = "cpp",

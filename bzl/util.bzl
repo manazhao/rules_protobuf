@@ -1,5 +1,7 @@
 #load("//bzl:classes.bzl", "CLASSES")
 
+load("@io_bazel_rules_go//go:def.bzl", "new_go_repository", "go_repository")
+
 # This should be set to the length of the longest CLASSES heirarcy
 # chain.  By definition, it cannot be longer than the lienght of the
 # list itself.  This is hardcoded to avoid dependency cycle.
@@ -129,12 +131,19 @@ def require(target, context):
     #     for ext in requires:
     #         require(ext, opts)
 
+    rule = None
     if not hasattr(native, kind):
-        fail("No native workspace rule named '%s' in dependency %s" % (kind, name))
+        if kind == 'new_go_repository':
+            rule = new_go_repository
+        elif kind == 'go_repository':
+            rule = go_repository
+        else:
+            fail("No native workspace rule named '%s' in dependency %s" % (kind, name))
 
-    rule = getattr(native, kind)
     if not rule:
-        fail("During require (%s), kind '%s' has no matching native rule" % (target, dep.kind))
+        rule = getattr(native, kind)
+        if not rule:
+            fail("During require (%s), kind '%s' has no matching native rule" % (target, dep.kind))
 
     # Invoke the native rule with the unpacked arguments, without
     # special entries (those that have no corresponding representation
