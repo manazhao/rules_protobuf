@@ -1,5 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("//bzl:base/class.bzl", BASE = "CLASS")
+#load("//bzl:proto_compile.bzl", "invokesuper")
 load("//bzl:util.bzl", "invokesuper")
 
 
@@ -50,43 +51,42 @@ def get_mappings_for(files, label, prefix):
     return mappings
 
 
-def build_protobuf_out(lang, self):
+def build_protobuf_out(cls, run, builder):
     """Override behavior to add plugin options before building the --go_out option"""
-    ctx = self["ctx"]
-    go_prefix = ctx.attr.go_prefix.go_prefix
-    optskey = "gen_" + lang.name + "_protobuf_options"
-    opts = self.get(optskey, [])
+    ctx = run.ctx
+    go_prefix = run.lang.go_prefix
 
+    opts = []
     # Add in the 'plugins=grpc' option to the protoc-gen-go plugin if
     # the user wants grpc.
-    if self["with_grpc"] or getattr(ctx.attr, "gen_" + lang.name + "_grpc", False):
-        opts += ["plugins=grpc"]
+    if run.with_grpc:
+        opts.append("plugins=grpc")
 
     # Build the list of import mappings.  Start with any configured on
     # the rule by attributes.
-    mappings = {}
-    mappings += ctx.attr.go_import_map
-    mappings += get_mappings_for(self["protos"], ctx.label, go_prefix)
+    mappings = run.lang.go_importmap
+    mappings += get_mappings_for(run.data.protos, run.data.label, go_prefix)
 
     # Then add in the transitive set from dependent rules. TODO: just
     # pass the import map transitively rather than recomputing it.
-    for pkg in self["pkgs"]:
+    for unit in run.data.transitive_units:
         # Map to this go_prefix if within same workspace, otherwise use theirs.
-        prefix = go_prefix if pkg.workspace_name == ctx.workspace_name else pkg.prefix
-        mappings += get_mappings_for(pkg.protos, pkg.label, prefix)
+        prefix = go_prefix if unit.data.workspace_name == run.data.workspace_name else unit.data.prefix
+        mappings += get_mappings_for(unit.data.protos, unit.data.label, prefix)
 
-    if ctx.attr.verbose > 1:
-        print("go_import_map: %s" % mappings)
+    if run.data.verbose > 1:
+        print("go_importmap: %s" % mappings)
 
     for k, v in mappings.items():
         opts += ["M%s=%s" % (k, v)]
 
-    self[optskey] = opts
-    invokesuper("build_protobuf_out", lang, self)
+    builder["pb_options"] += opts
+    invokesuper(cls, "build_protobuf_out", run, builder)
 
 
-def build_grpc_out(lang, self):
+def build_grpc_out(cls, run, builder):
     """Override behavior to skip the --grpc_out option (protoc-gen-go does not use it)"""
+    print("skip grpc out")
     pass
 
 

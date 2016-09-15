@@ -1,5 +1,24 @@
 load("//bzl:base/class.bzl", BASE = "CLASS")
 
+PB_REQUIRES = [
+    "protobuf",
+    "external_protobuf_clib",
+    "gtest",
+]
+
+GRPC_REQUIRES = PB_REQUIRES + [
+    "grpc",
+    "zlib",
+    "external_zlib",
+    "nanopb",
+    "external_nanopb",
+    "boringssl",
+    "libssl",
+    "external_protobuf_compiler",
+    "third_party_protoc",
+    "external_protoc_gen_grpc_cpp",
+],
+
 PB_COMPILE_DEPS = [
     "//external:protobuf_clib",
 ]

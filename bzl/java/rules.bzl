@@ -1,64 +1,91 @@
-load("//bzl:base/rules.bzl", "proto_library")
-load("//bzl:java/class.bzl", JAVA = "CLASS")
-load("//bzl:protoc.bzl", "implement")
 load("//bzl:proto_compile.bzl", "proto_compile")
 
-SPEC = [JAVA]
+def _java_proto_language_compile_jars_impl(ctx):
+  files = []
 
-java_proto_compile = implement(SPEC)
+  for dep in ctx.attr.lang:
+    lang = dep.proto_language
+    files += lang.pb_compile_deps
+    if lang.supports_grpc and ctx.attr.with_grpc:
+      files += lang.grpc_compile_deps
 
-def java_proto_library(name, **kwargs):
-  proto_library(name,
-                proto_compile = java_proto_compile,
-                spec = SPEC,
-                **kwargs)
+  jars = [file for file in files if file.path.endswith(".jar")]
 
-# def java_proto_library2(name,
-#                       lang = ["//bzl/cpp"],
-#                       protos = [],
-#                       imports = [],
-#                       inputs = [],
-#                       proto_deps = [],
-#                       protoc = None,
+  return struct(
+    files = set(jars),
+  )
 
-#                       pb_plugin = None,
-#                       pb_options = [],
+java_proto_language_compile_jars = rule(
+  implementation = _java_proto_language_compile_jars_impl,
+  attrs = {
+    "lang": attr.label_list(
+      providers = ["proto_language"],
+      mandatory = True,
+    ),
+    "with_grpc": attr.bool(default = True),
+  }
+)
+"""Aggregates the jar files named in pb_ and grpc_ proto_languages.
+"""
 
-#                       grpc_plugin = None,
-#                       grpc_options = [],
+def java_proto_library(
+    name,
+    lang = ["//bzl/java"],
+    protos = [],
+    imports = [],
+    inputs = [],
+    output_to_workspace = False,
+    proto_deps = [],
+    protoc = None,
 
-#                       proto_compile_args = {},
-#                       with_grpc = True,
-#                       srcs = [],
-#                       deps = [],
-#                       **kwargs):
+    pb_plugin = None,
+    pb_options = [],
 
-#   compile_deps = JAVA.pb_compile_deps
-#   if with_grpc:
-#     compile_deps += JAVA.grpc_compile_deps
+    grpc_plugin = None,
+    grpc_options = [],
 
-#   proto_compile_args += {
-#     "name": name + ".pb",
-#     "protos": protos,
-#     "deps": proto_deps,
-#     "lang": lang,
-#     "imports": imports,
-#     "inputs": inputs,
-#     "pb_options": pb_options,
-#     "grpc_options": grpc_options,
-#   }
+    proto_compile_args = {},
+    with_grpc = True,
+    srcs = [],
+    deps = [],
+    verbose = 0,
+    **kwargs):
 
-#   if protoc:
-#     proto_compile_args["protoc"] = protoc
-#   if pb_plugin:
-#     proto_compile_args["pb_plugin"] = pb_plugin
-#   if grpc_plugin:
-#     proto_compile_args["grpc_plugin"] = pb_plugin
+  proto_compile_args += {
+    "name": name + ".pb",
+    "protos": protos,
+    "deps": [dep + ".pb" for dep in proto_deps],
+    "lang": lang,
+    "imports": imports,
+    "inputs": inputs,
+    "pb_options": pb_options,
+    "grpc_options": grpc_options,
+    "output_to_workspace": output_to_workspace,
+    "verbose": verbose,
+  }
 
-#   proto_compile(**proto_compile_args)
+  if protoc:
+    proto_compile_args["protoc"] = protoc
+  if pb_plugin:
+    proto_compile_args["pb_plugin"] = pb_plugin
+  if grpc_plugin:
+    proto_compile_args["grpc_plugin"] = pb_plugin
 
-#   native.cc_library(
-#     name = name,
-#     srcs = srcs + [name + ".pb"],
-#     deps = list(set(deps + compile_deps)),
-#     **kwargs)
+  proto_compile(**proto_compile_args)
+
+  java_proto_language_compile_jars(
+    name = name + "_compile_jars",
+    lang = lang,
+    with_grpc = with_grpc,
+  )
+
+  native.java_import(
+    name = name + "_compile_imports",
+    jars = [name + "_compile_jars"],
+  )
+
+  native.java_library(
+    name = name,
+    srcs = srcs + [name + ".pb"],
+    deps = list(set(deps + proto_deps + [name + "_compile_imports"])),
+    **kwargs)

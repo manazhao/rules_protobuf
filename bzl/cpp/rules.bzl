@@ -1,38 +1,28 @@
-#load("//bzl:base/rules.bzl", "proto_library")
 load("//bzl:proto_compile.bzl", "proto_compile")
-load("//bzl:cpp/class.bzl", CPP = "CLASS", "PB_COMPILE_DEPS", "GRPC_COMPILE_DEPS")
-#load("//bzl:protoc.bzl", "implement")
+load("//bzl:cpp/class.bzl", "PB_COMPILE_DEPS", "GRPC_COMPILE_DEPS")
 
-# SPEC = [CPP]
+def cc_proto_library(
+    name,
+    lang = ["//bzl/cpp"],
+    protos = [],
+    imports = [],
+    inputs = [],
+    proto_deps = [],
+    output_to_workspace = False,
+    protoc = None,
 
-# cc_proto_compile = implement(SPEC)
+    pb_plugin = None,
+    pb_options = [],
 
-# def cc_proto_library(name, **kwargs):
-#   proto_library(name,
-#                 proto_compile = cc_proto_compile,
-#                 spec = SPEC,
-#                 **kwargs)
+    grpc_plugin = None,
+    grpc_options = [],
 
-def cc_proto_library(name,
-                      lang = ["//bzl/cpp"],
-                      protos = [],
-                      imports = [],
-                      inputs = [],
-                      proto_deps = [],
-                      protoc = None,
-
-                      pb_plugin = None,
-                      pb_options = [],
-
-                      grpc_plugin = None,
-                      grpc_options = [],
-
-                      proto_compile_args = {},
-                      with_grpc = True,
-                      srcs = [],
-                      deps = [],
-                      verbose = 0,
-                      **kwargs):
+    proto_compile_args = {},
+    with_grpc = True,
+    srcs = [],
+    deps = [],
+    verbose = 0,
+    **kwargs):
 
   if with_grpc:
     compile_deps = GRPC_COMPILE_DEPS
@@ -48,6 +38,7 @@ def cc_proto_library(name,
     "inputs": inputs,
     "pb_options": pb_options,
     "grpc_options": grpc_options,
+    "output_to_workspace": output_to_workspace,
     "verbose": verbose,
   }
 

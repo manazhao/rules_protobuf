@@ -52,7 +52,7 @@ cc_proto_library(
         "//examples/proto:cpp",
     ],
     protos = [":protos"],
-    verbose = 1,
+    verbose = 0,
     with_grpc = True,
 )
 

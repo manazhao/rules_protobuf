@@ -226,12 +226,13 @@ def _proto_compile_impl(ctx):
   # Immutable global state for this compiler run.
   data = struct(
     label = ctx.label,
+    workspace_name = ctx.workspace_name,
     prefix = ":".join([ctx.label.package, ctx.label.name]),
     execdir = execdir,
     protos = ctx.files.protos,
     pb_options = ctx.attr.pb_options,
     grpc_options = ctx.attr.grpc_options,
-    verbose = ctx.attr.verbose or 2,
+    verbose = ctx.attr.verbose,
     with_grpc = ctx.attr.with_grpc,
     transitive_units = transitive_units,
     output_to_workspace = ctx.attr.output_to_workspace,
@@ -291,7 +292,6 @@ def _proto_compile_impl(ctx):
   # Build final immutable for rule and transitive beyond
   unit = struct(
     compiler = ctx.executable.protoc,
-    workspace_name = ctx.workspace_name,
     data = data,
     args = set(builder["args"]),
     imports = set(builder["imports"]),
@@ -329,13 +329,14 @@ proto_compile = rule(
   attrs = {
     "lang": attr.label_list(
       providers = ["proto_language"],
+      allow_files = False,
       mandatory = True,
     ),
     "protos": attr.label_list(
       allow_files = FileType([".proto"]),
     ),
     "deps": attr.label_list(
-      providers = ["proto_compile_result"] # change this to not squat
+      providers = ["proto_compile_result"]
     ),
     "protoc": attr.label(
       default = Label("//external:protoc"),
@@ -350,6 +351,8 @@ proto_compile = rule(
     "output_to_workspace": attr.bool(),
     "verbose": attr.int(),
     "with_grpc": attr.bool(default = True),
+    # Concession to golang until I think of a better method to extend
+    # attributes for compile rules.
     "outs": attr.output_list(),
   },
   output_to_genfiles = True, # this needs to be set for cc-rules.

@@ -46,6 +46,7 @@ proto_compile(
         "//bzl/java",
         "//bzl/python",
         "//bzl/cpp",
+        "//bzl/go",
     ],
 )
 
@@ -57,7 +58,7 @@ cc_proto_library(
 java_proto_library(
     name = "java",
     protos = [":protos"],
-    verbose = 1,
+    verbose = 0,
 )
 
 js_proto_compile(

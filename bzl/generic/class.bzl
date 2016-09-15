@@ -1,5 +1,54 @@
 load("//bzl:util.bzl", "get_offset_path")
 
+def get_import_mappings_for(files, prefix, label):
+    """For a set of files that belong the the given context label, create a mapping to the given prefix."""
+    # Go-specific code crept in here.
+    # if run.lang.prefix and run.lang.prefix.go_prefix:
+    #     options += get_go_importmap_options(run, builder)
+
+    print("label: %s" % label)
+    mappings = {}
+    for file in files:
+        src = file.short_path
+        # File in an external repo looks like:
+        # '../WORKSPACE/SHORT_PATH'.  We want just the SHORT_PATH.
+        if src.startswith("../"):
+            parts = src.split("/")
+            src = "/".join(parts[2:])
+        dst = [prefix, label.package]
+        name_parts = label.name.split(".")
+        # special case to elide last part if the name is
+        # 'go_default_library.pb'
+        if name_parts[0] != "go_default_library":
+            dst.append(name_parts[0])
+        mappings[src] = "/".join(dst)
+
+    return mappings
+
+
+def get_go_importmap_options(run, builder):
+    """Override behavior to add plugin options before building the --go_out option"""
+
+    lang = run.lang
+    go_prefix = lang.prefix.go_prefix
+    mappings = lang.import_map
+    mappings += get_import_mappings_for(run.data.protos,go_prefix, run.data.label)
+
+    # Then add in the transitive set from dependent rules.
+    for unit in run.data.transitive_units:
+        # Map to this go_prefix if within same workspace, otherwise
+        # use theirs.
+        prefix = go_prefix
+        if unit.workspace_name != run.data.workspace_name:
+            prefix = unit.prefix
+        print("protos %s, prefix %s, label: %s" % (unit.data.protos, prefix, unit.data.label))
+        mappings += get_import_mappings_for(unit.data.protos, prefix, unit.data.label)
+
+    if run.data.verbose > 1:
+        print("go_import_map: %s" % mappings)
+
+    opts = ["M%s=%s" % (k, v) for k, v in mappings.items()]
+    return opts
 
 
 def build_output_jar(cls, run, builder):
@@ -129,6 +178,7 @@ def build_grpc_out(cls, run, builder):
     options = builder["grpc_options"]
 
     build_plugin_out(name, outdir, options, builder)
+
 
 # ****************************************************************
 # ****************************************************************
