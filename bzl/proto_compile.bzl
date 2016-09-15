@@ -243,7 +243,7 @@ def _proto_compile_impl(ctx):
     "pb_options": data.pb_options,
     "grpc_options": data.grpc_options,
     "imports": ctx.attr.imports + [execdir],
-    "inputs": ctx.files.protos,
+    "inputs": ctx.files.protos + ctx.files.inputs,
     "outputs": [],
   }
 
@@ -315,6 +315,7 @@ def _proto_compile_impl(ctx):
   #   invoke("post_execute", cls, self)
 
   files = set(builder["outputs"])
+
   return struct(
     files = files,
     proto_compile_result = struct(

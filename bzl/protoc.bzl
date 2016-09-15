@@ -203,8 +203,10 @@ def _protoc_rule_impl(ctx):
   for lang in spec:
     invoke("post_execute", lang, self)
 
+  files = set(self["outputs"])
+  print("exported files (cc) %s" % files)
   return struct(
-    files = set(self["outputs"]),
+    files = files,
     proto = struct(
       pkg = pkg,
       transitive_pkgs = pkgs,

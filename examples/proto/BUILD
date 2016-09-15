@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("//bzl:proto_compile.bzl", "proto_compile")
+#load("//bzl:proto_library.bzl", "proto_library")
 
 load("//bzl:cpp/rules.bzl", "cc_proto_library")
 load("//bzl:csharp/rules.bzl", "csharp_proto_library")
@@ -22,11 +23,11 @@ go_proto_library(
     verbose = 1,
 )
 
-cc_proto_library(
-    name = "cpp",
-    protos = [":protos"],
-    verbose = 1,
-)
+# cc_proto_library(
+#     name = "cc",
+#     protos = [":protos"],
+#     verbose = 1,
+# )
 
 # Work-in-progress.  This must be called with ':rb.pb' due to lack of
 # implementing library rule for the moment.
@@ -37,7 +38,6 @@ ruby_proto_library(
     verbose = 0,
 )
 
-
 proto_compile(
     name = "bufs",
     protos = [":protos"],
@@ -47,6 +47,11 @@ proto_compile(
         "//bzl/python",
         "//bzl/cpp",
     ],
+)
+
+cc_proto_library(
+    name = "cpp",
+    protos = [":protos"],
 )
 
 java_proto_library(

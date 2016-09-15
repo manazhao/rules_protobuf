@@ -1,5 +1,13 @@
 load("//bzl:base/class.bzl", BASE = "CLASS")
 
+PB_COMPILE_DEPS = [
+    "//external:protobuf_clib",
+]
+
+GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
+    "@com_github_grpc_grpc//:grpc++",
+]
+
 CLASS = struct(
     parent = BASE,
     name = "cpp",

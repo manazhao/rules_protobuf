@@ -58,18 +58,6 @@ def build_output_files(cls, run, builder):
             builder["outputs"] += [pbfile]
 
 
-def build_imports(cls, run, builder):
-    """Build additional imports"""
-    pass
-
-    # if we elect to support transitive imports, this would be the
-    # place to do it.  Not sure if this will increase complexity for
-    # the user and cause problems, so leaving it out for now.
-    #
-    #for dep in ctx.attr.proto_deps:
-    #    ...
-
-
 def build_plugin_invocation(name, plugin, execdir, builder):
     """Add a '--plugin=NAME=PATH' argument if the language descriptor
     requires one.
@@ -242,7 +230,6 @@ CLASS = struct(
     build_output_srcjar = build_output_srcjar,
     build_grpc_invocation = build_grpc_invocation,
     build_grpc_out = build_grpc_out,
-    build_imports = build_imports,
     build_package_prefix = build_package_prefix,
     build_protobuf_invocation = build_protobuf_invocation,
     build_protobuf_out = build_protobuf_out,

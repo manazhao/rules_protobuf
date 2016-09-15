@@ -36,6 +36,16 @@ go_proto_library(
     with_grpc = True,
 )
 
+# cc_proto_library(
+#     name = "cc",
+#     proto_deps = [
+#         "//examples/proto:cc",
+#     ],
+#     protos = [":protos"],
+#     verbose = 1,
+#     with_grpc = True,
+# )
+
 cc_proto_library(
     name = "cpp",
     proto_deps = [

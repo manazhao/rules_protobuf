@@ -51,6 +51,16 @@ def get_primary_output_suffix(lang, self):
     """The name of the implicit target that names the generated pb source files."""
     return ".pb.srcjar"
 
+PB_COMPILE_DEPS = [
+    "@com_google_guava_guava//jar",
+    "@com_google_protobuf_protobuf_java//jar",
+]
+
+GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
+    "@io_grpc_grpc_core//jar",
+    "@io_grpc_grpc_protobuf//jar",
+    "@io_grpc_grpc_stub//jar",
+]
 
 CLASS = struct(
     parent = BASE,
