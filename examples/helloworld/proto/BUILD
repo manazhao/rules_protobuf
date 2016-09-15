@@ -6,12 +6,25 @@ load("//bzl:python/rules.bzl", "py_proto_library")
 load("//bzl:java/rules.bzl", "java_proto_library")
 load("//bzl:js/rules.bzl", "js_proto_compile")
 
+load("//bzl:proto_compile.bzl", "proto_compile")
+
 filegroup(
     name = "protos",
     srcs = ["helloworld.proto"],
 )
 
-# This duplication of rules is probably why an aspect-based implementation makes sense.
+
+proto_compile(
+    name = "bufs",
+    protos = [":protos"],
+    deps = ["//examples/proto:bufs"],
+    lang = [
+        "//bzl/ruby",
+        "//bzl/java",
+        "//bzl/python",
+        "//bzl/cc",
+    ],
+)
 
 go_proto_library(
     name = "go",

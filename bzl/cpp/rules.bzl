@@ -11,3 +11,20 @@ def cc_proto_library(name, **kwargs):
                 proto_compile = cc_proto_compile,
                 spec = SPEC,
                 **kwargs)
+
+def cpp_proto_library(name,
+                      protos = [],
+                      imports = [],
+                      proto_deps = [],
+                      protoc = None,
+                      pb_plugin = None,
+                      pb_options = [],
+                      lang = ["//bzl/cpp"],
+                      srcs = [],
+                      deps = [],
+                      **kwargs):
+
+  proto_library(name,
+                proto_compile = cc_proto_compile,
+                spec = SPEC,
+                **kwargs)

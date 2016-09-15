@@ -1,5 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
+load("//bzl:proto_compile.bzl", "proto_compile")
+
 load("//bzl:cpp/rules.bzl", "cc_proto_library")
 load("//bzl:csharp/rules.bzl", "csharp_proto_library")
 load("//bzl:go/rules.bzl", "go_proto_library")
@@ -33,6 +35,18 @@ ruby_proto_library(
     name = "rb",
     protos = [":protos"],
     verbose = 0,
+)
+
+
+proto_compile(
+    name = "bufs",
+    protos = [":protos"],
+    lang = [
+        "//bzl/ruby",
+        "//bzl/java",
+        "//bzl/python",
+        "//bzl/cpp",
+    ],
 )
 
 java_proto_library(
