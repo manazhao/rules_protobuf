@@ -142,8 +142,8 @@ different version of https://github.com/golang/protobuf, provide a
 different commit ID:
 
 ```python
-load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
-cc_proto_repositories(
+load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
+go_proto_repositories(
   overrides = {
     "com_github_golang_protobuf": {
       "commit": "2c1988e8c18d14b142c0b472624f71647cf39adb", # Aug 8, 2016
@@ -158,7 +158,6 @@ collision.  To prevent rules_protobuf from loading specific external
 workspaces, name them in the `excludes` list:
 
 ```python
-load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
 go_proto_repositories(
   excludes = [
     "com_github_golang_glog",
@@ -357,7 +356,7 @@ Contributions welcome; please create Issues or GitHub pull requests.
 [wtfcat_image]: https://github.com/pubref/rules_protobuf/blob/master/images/wtfcat.png
 [grpc_image]: https://github.com/pubref/rules_protobuf/blob/master/images/gRPC.png
 
-[repositories.bzl]: protobuf/repositories.bzl
+[repositories.bzl]: protobuf/internal/repositories.bzl
 
 [skylark-dict]: https://www.bazel.io/docs/skylark/lib/dict.html "Skylark Documentation for dict"
 [skylark-string]: https://www.bazel.io/docs/skylark/lib/attr.html#string "Skylark string attribute"
