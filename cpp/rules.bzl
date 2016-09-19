@@ -25,6 +25,12 @@ GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
     "@com_github_grpc_grpc//:grpc++",
 ]
 
+
+def cpp_proto_compile(langs = ["//cpp"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
+
+cc_proto_compile = cpp_proto_compile
+
 def cpp_proto_library(
     name,
     langs = ["//cpp"],

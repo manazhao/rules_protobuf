@@ -23,6 +23,10 @@ GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
     "@org_golang_x_net//:context",
 ]
 
+
+def go_proto_compile(langs = ["//go"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
+
 def go_proto_library(
     name,
     langs = ["//go"],

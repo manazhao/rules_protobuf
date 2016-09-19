@@ -18,6 +18,8 @@ PB_COMPILE_DEPS = [
   "@nuget_google_protobuf//:nuget_google_protobuf",
 ]
 
+def csharp_proto_compile(langs = ["//csharp"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
 
 def csharp_proto_library(
     name,

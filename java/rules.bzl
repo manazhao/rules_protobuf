@@ -42,6 +42,10 @@ def nano_proto_repositories(
     ], **kwargs):
   proto_repositories(lang_requires = lang_requires, **kwargs)
 
+
+def java_proto_compile(langs = ["//java"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
+
 def java_proto_library(
     name,
     langs = ["//java"],

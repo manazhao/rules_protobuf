@@ -11,6 +11,10 @@ PB_COMPILE_DEPS = [
 GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
 ]
 
+
+def objc_proto_compile(langs = ["//objc"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
+
 def objc_proto_library(
     name,
     langs = ["//objc"],
