@@ -32,6 +32,30 @@ proto_language(
     ],
 )
 
+proto_language(
+    name = "grpc-java",
+    output_to_jar = True,
+    pb_compile_deps = [
+        "@com_google_guava_guava//jar",
+        "@com_google_protobuf_protobuf_java//jar",
+        "@io_grpc_grpc_core//jar",
+        "@io_grpc_grpc_protobuf//jar",
+        "@io_grpc_grpc_stub//jar",
+    ],
+    pb_plugin = "//third_party/protoc_gen_grpc_java:protoc_gen_grpc_java_bin",
+    pb_runtime_deps = [
+        "@io_grpc_grpc_netty//jar",
+        "@io_grpc_grpc_protobuf_lite//jar",
+        "@io_netty_netty_buffer//jar",
+        "@io_netty_netty_codec//jar",
+        "@io_netty_netty_codec_http2//jar",
+        "@io_netty_netty_common//jar",
+        "@io_netty_netty_handler//jar",
+        "@io_netty_netty_resolver//jar",
+        "@io_netty_netty_transport//jar",
+    ],
+)
+
 java_proto_language_deps(
     name = "grpc_compiletime",
     langs = [":java"],

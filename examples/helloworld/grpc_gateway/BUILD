@@ -9,11 +9,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_test")
 # )
 
 load("//bzl:proto_compile.bzl", "proto_compile")
-
-load("//bzl:grpc_gateway/rules.bzl",
+load(
+    "//bzl:grpc_gateway/rules.bzl",
     "grpc_gateway_library",
     "grpc_gateway_binary",
-     "GRPC_GATEWAY_DEPS",
+    "GRPC_GATEWAY_DEPS",
 )
 
 # grpc_gateway_library(
@@ -38,12 +38,11 @@ load("//bzl:grpc_gateway/rules.bzl",
 
 grpc_gateway_binary(
     name = "greeter",
-    proto_label = "gateway",
     srcs = ["greeter.go"],
+    proto_label = "gateway",
     protos = ["helloworld.proto"],
     verbose = 2,
 )
-
 
 go_test(
     name = "greeter_test",

@@ -164,7 +164,6 @@ go_binary(
     ],
 )
 
-
 go_library(
     name = "protoc-gen-swagger/genswagger",
     srcs = [
@@ -178,7 +177,7 @@ go_library(
         "protoc-gen-grpc-gateway/generator",
         "@com_github_golang_glog//:go_default_library",
         "@com_github_golang_protobuf//:proto",
-        "@com_github_golang_protobuf//:protoc-gen-go/plugin",
         "@com_github_golang_protobuf//:protoc-gen-go/descriptor",
+        "@com_github_golang_protobuf//:protoc-gen-go/plugin",
     ],
 )

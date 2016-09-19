@@ -26,7 +26,7 @@ java_library(
     name = "client",
     srcs = ["HelloWorldClient.java"],
     deps = [
-        "//examples/helloworld/proto:java",
         "//bzl/java:grpc_compiletime",
+        "//examples/helloworld/proto:java",
     ],
 )

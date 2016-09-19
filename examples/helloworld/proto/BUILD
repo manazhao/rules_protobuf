@@ -1,9 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//bzl:cpp/rules.bzl",  "cc_proto_library")
-load("//bzl:go/rules.bzl",   "go_proto_library")
+load("//bzl:cpp/rules.bzl", "cc_proto_library")
+load("//bzl:go/rules.bzl", "go_proto_library")
 load("//bzl:java/rules.bzl", "java_proto_library")
-
 load("//bzl:proto_compile.bzl", "proto_compile")
 
 filegroup(

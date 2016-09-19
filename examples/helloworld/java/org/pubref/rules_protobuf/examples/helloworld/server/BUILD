@@ -21,14 +21,14 @@ java_binary(
     runtime_deps = [
         ":server",
         "//bzl/java:netty_runtime",
-    ]
+    ],
 )
 
 java_library(
     name = "server",
     srcs = ["HelloWorldServer.java"],
     deps = [
-        "//examples/helloworld/proto:java",
         "//bzl/java:grpc_compiletime",
+        "//examples/helloworld/proto:java",
     ],
 )
