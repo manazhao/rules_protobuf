@@ -22,8 +22,11 @@ Bazel | rules_protobuf | gRPC |
 | [Ruby](ruby)                 | [ruby_proto_compile](ruby)          |           |          |
 | [gRPC gateway](grpc_gateway) | [grpc_gateway_proto_compile](grpc_gateway)   | [grpc_gateway_proto_library](grpc_gateway)<br/>[grpc_gateway_binary](grpc_gateway) | yes |
 | [gRPC swagger](grpc_gateway) | [grpc_gateway_swagger_compile](grpc_gateway) |           | yes |
+
+| Experimental Language<sup>4</sup>  | Compile<sup>1</sup>  | Build<sup>2</sup> | gRPC<sup>3</sup> |
+| ---------------------------: | -----------: | --------: | -------- |
 | [Objective-C](objc) (4)      | [objc_proto_compile](objc) | [objc_proto_compile](objc)  |        |
-| <span style="color:red"><a href="csharp">csharp</a></span><sup>4</sup> | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
+| [C#](csharp) | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
 
 1. Support for generation of protoc outputs via `proto_compile()` rule.
 
