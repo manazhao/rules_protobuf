@@ -1,5 +1,4 @@
-load("//protobuf:rules.bzl", "proto_compile")
-load("//protobuf:proto_repositories.bzl", "proto_repositories")
+load("//protobuf:rules.bzl", "proto_compile", "proto_repositories")
 
 def objc_proto_repositories(
     lang_requires = [

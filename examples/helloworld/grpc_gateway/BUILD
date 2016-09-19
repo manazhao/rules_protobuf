@@ -46,6 +46,7 @@ grpc_gateway_binary(
 go_test(
     name = "greeter_test",
     size = "small",
+    tags = ["exclusive"],
     srcs = [
         "greeter.go",
         "greeter_test.go",

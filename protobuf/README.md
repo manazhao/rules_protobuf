@@ -1,4 +1,7 @@
-# `proto_language` attributes
+# `proto_language`
+
+The `proto_language` rule defines the metadata that describes how to
+invoke a particular plugin with the `protoc` tool.
 
 | Name | Type | Description | Default |
 | ---- | ---- | ----------- | ------- |
@@ -26,8 +29,12 @@
 | `prefix` | `label` providing `go_prefix` | Optional label to the go_prefix rule (go specific). | `""` |
 | `importmap` | `string_dict`  | Optional mappings (go specific). | `{}` |
 
+---
 
-# `proto_compile` attributes
+# `proto_compile`
+
+The `proto_compile` rule invokes the `protoc` tool with a list of
+`proto_language` specifications.
 
 | Name | Type | Description | Default |
 | ---- | ---- | ----------- | ------- |
@@ -44,7 +51,12 @@
 | `protoc` | executable `label` | Optional override to the default protoc binary tool. | `//external:protoc` |
 | `output_to_workspace` | `boolean` | Optional flag.  Under normal operation, generated code is placed in the bazel sandbox and does not need to be checked in into version control.  However, your requirements may be such that is necessary to check these generated files in.  Setting this flag to `True` will emit generated `*.pb.*` files into in your workspace alongside the `*.proto` source files.  Please make sure you're sure you want to do this as it has the potential for unwanted overwrite of source files.  | `False` |
 
-# `*_proto_library` attributes
+---
+
+# `*_proto_library`
+
+The proto_library family of rules build compiled library outputs for a
+particular language.  They share a common set of attributes.
 
 The attributes `protoc`, `protos`, `proto_deps`, `imports`,
 `output_to_workspace`, `verbose`, `with_grpc` are included in all
@@ -56,3 +68,18 @@ The attributes `protoc`, `protos`, `proto_deps`, `imports`,
 | `srcs` | `label_list` of file type specific to library rule | Additional source files passed to the implementing library rule (for example, `cc_library`  | `[]` |
 | `deps` | `label_list` having provider specific to library rule | Additional dependencies  passed to the implementing library rule (for example, `cc_library`  | `[]` |
 | `**kwargs` | `dict` | Additional extra arguments will be passed directly to the library rule implementation (for example, `cc_library` | `{}` |
+
+---
+
+# `proto_repositories`
+
+The `proto_repositores` macro loads the required external workspaces
+for a particular language.  This rule is used internally by the
+language-specific `*_proto_repositories` rules, but can be invoked
+directly to load the minimal set of deps to use `proto_compile`.
+
+| Name | Type | Description | Default |
+| ---- | ---- | ----------- | ------- |
+| `excludes` | `string_list` | An optional list of labels to exclude when loading. | `[]` |
+| `overrides` | `string_dict` | A list of override specs to merge when loading.  | `{}` |
+| `verbose` | `bool` | An optional flag to be more verbose. | `False` |

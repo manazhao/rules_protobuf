@@ -1,4 +1,4 @@
-load("//protobuf:require.bzl", "require")
+load("//protobuf:internal/require.bzl", "require")
 
 def proto_repositories(excludes = [],
                        lang_requires = [],

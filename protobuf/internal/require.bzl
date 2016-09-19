@@ -1,4 +1,4 @@
-load("//protobuf:repositories.bzl", "REPOSITORIES")
+load("//protobuf:internal/repositories.bzl", "REPOSITORIES")
 
 def _load(target, repos, verbose):
     """Load external dependency during WORKSPACE loading.
