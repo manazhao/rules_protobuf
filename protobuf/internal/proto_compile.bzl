@@ -166,11 +166,13 @@ def _build_output_files(run, builder):
 
 
 def _build_output_libdir(run, builder):
+  # This is currently csharp-specific, which needs to have the
+  # output_dir positively adjusted to the package directory.
   ctx = run.ctx
   execdir = run.data.execdir
   name = run.lang.name
-  ns = "Foo"
-  builder[name + "_pb_options"] += ["base_namespace=" + ns]
+
+  builder[name + "_outdir"] = _get_offset_path(execdir, run.data.descriptor_set.dirname)
   _build_output_files(run, builder)
 
 

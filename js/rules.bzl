@@ -17,7 +17,7 @@ def closure_proto_compile(langs = ["//js:closure"], **kwargs):
 def commonjs_proto_compile(langs = ["//js:commonjs"], **kwargs):
   proto_compile(langs = langs, **kwargs)
 
-def closure_proto_library(
+def js_proto_library(
     name,
     langs = ["//js:closure"],
     protos = [],
@@ -68,5 +68,8 @@ def closure_proto_library(
     deps = list(set(deps + proto_deps)),
     **kwargs)
 
-def commonjs_proto_library(langs = [""], **kwargs):
+def closure_proto_library(langs = ["//js:closure"], **kwargs):
+  js_proto_library(langs = langs, **kwargs)
+
+def commonjs_proto_library(langs = ["//js:commonjs"], **kwargs):
   js_proto_library(langs = langs, **kwargs)

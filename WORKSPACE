@@ -68,5 +68,8 @@ go_proto_repositories()
 load("//csharp:rules.bzl", "csharp_proto_repositories")
 csharp_proto_repositories()
 
+load("//objc:rules.bzl", "objc_proto_repositories")
+objc_proto_repositories()
+
 load("//grpc_gateway:rules.bzl", "grpc_gateway_proto_repositories")
 grpc_gateway_proto_repositories()

@@ -2,13 +2,16 @@ load("//protobuf:rules.bzl", "proto_compile", "proto_repositories")
 
 def objc_proto_repositories(
     lang_requires = [
+      "protobuf",
     ], **kwargs):
   proto_repositories(lang_requires = lang_requires, **kwargs)
 
 PB_COMPILE_DEPS = [
+    "@com_github_google_protobuf//:protobuf_objc",
 ]
 
 GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
+    #"@com_github_grpc_grpc//:grpc_objc",
 ]
 
 

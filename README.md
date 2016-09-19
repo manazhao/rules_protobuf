@@ -25,7 +25,7 @@ Bazel | rules_protobuf | gRPC |
 
 | Experiment <sup>4</sup>  | Compile<sup>1</sup>  | Build<sup>2</sup> | gRPC<sup>3</sup> |
 | ---------------------------: | -----------: | --------: | -------- |
-| [Objective-C](objc)  | [objc_proto_compile](objc) | [objc_proto_compile](objc)  |        |
+| [Objective-C](objc)  | [objc_proto_compile](objc) | [objc_proto_library](objc)  |        |
 | [C#](csharp) | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
 
 1. Support for generation of protoc outputs via `proto_compile()` rule.

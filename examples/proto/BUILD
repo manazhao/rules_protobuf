@@ -4,11 +4,11 @@ load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar", "pkg_deb")
 load("//protobuf:rules.bzl", "proto_compile")
 load("//cpp:rules.bzl", "cc_proto_library")
 
-#load("//csharp:rules.bzl", "csharp_proto_library")
+load("//csharp:rules.bzl", "csharp_proto_compile", "csharp_proto_library")
 load("//go:rules.bzl", "go_proto_library")
 load("//java:rules.bzl", "java_proto_library")
 load("//objc:rules.bzl", "objc_proto_library")
-load("//js:rules.bzl", "js_proto_library")
+load("//js:rules.bzl", "closure_proto_library")
 
 filegroup(
     name = "protos",
@@ -60,11 +60,11 @@ java_proto_library(
     with_grpc = True,
 )
 
-# objc_proto_library(
-#     name = "objc",
-#     protos = [":protos"],
-#     verbose = 0,
-# )
+objc_proto_library(
+     name = "objc",
+     protos = [":protos"],
+     verbose = 0,
+)
 
 # proto_compile(
 #     name = "closure",
@@ -122,8 +122,14 @@ proto_compile(
 #     ],
 # )
 
-# csharp_proto_library(
-#     name = "cs",
-#     protos = [":protos"],
-#     verbose = 1,
-# )
+csharp_proto_compile(
+    name = "cs",
+    protos = [":protos"],
+    verbose = 2,
+)
+
+csharp_proto_library(
+    name = "cslib",
+    protos = [":protos"],
+    verbose = 2,
+)

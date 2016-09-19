@@ -6,4 +6,5 @@ proto_language(
     name = "objc",
     pb_file_extensions = [".pbobjc.h", ".pbobjc.m"],
     output_file_style = "capitalize",
+    supports_grpc = False,
 )
