@@ -14,12 +14,12 @@ Bazel | rules_protobuf | gRPC |
 | Language                     | Compile (1)  | Build (2) | gRPC (3) |
 | ---------------------------: | -----------: | --------: | -------- |
 | [C++](cpp)                   | [cc_proto_compile](cpp) | [cc_proto_library](cpp) | yes |
-| [C#](csharp)                 | [csharp_proto_compile](csharp) (4)      | [csharp_proto_library](csharp) |          |
+| [C#](csharp) (4)             | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
 | [Go](go)                     | [go_proto_compile](go) | [go_proto_library](go) | yes |
 | [Java](java)                 | [java_proto_compile](java) | [java_proto_library](java) | yes |
 | [Android](java)              | yes          | [android_proto_library](android) | yes |
 | [Javascript](js)             | [closure_proto_compile](js)<br/>[commonjs_proto_compile](js) | [closure_proto_library](js)<br/>[commonjs_proto_library](js)          |          |
-| [Objective-C](objc)          | [objc_proto_compile](objc) (4) | [objc_proto_compile](objc)  |        |
+| [Objective-C](objc) (4)      | [objc_proto_compile](objc) | [objc_proto_compile](objc)  |        |
 | [Python](python)             | [py_proto_compile](python)         |           |          |
 | [Ruby](ruby)                 | [ruby_proto_compile](ruby)          |           |          |
 | [gRPC gateway](grpc_gateway) | [grpc_gateway_proto_compile](grpc_gateway)   | [grpc_gateway_proto_library](grpc_gateway)<br/>[grpc_gateway_binary](grpc_gateway) | yes |
@@ -31,7 +31,8 @@ Bazel | rules_protobuf | gRPC |
 
 3. gRPC support.
 
-4. Highly experimental.
+4. Highly experimental (not even functional yet). These rules are a
+   WIP for those interested in contributing further work.
 
 ---
 
