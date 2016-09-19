@@ -1,9 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//bzl:cpp/rules.bzl", "cc_proto_library")
-load("//bzl:go/rules.bzl", "go_proto_library")
-load("//bzl:java/rules.bzl", "java_proto_library")
-load("//bzl:proto_compile.bzl", "proto_compile")
+load("//protobuf:rules.bzl", "proto_compile")
+load("//cpp:rules.bzl", "cc_proto_library")
+load("//go:rules.bzl", "go_proto_library")
+load("//java:rules.bzl", "java_proto_library")
 
 filegroup(
     name = "protos",
@@ -66,7 +66,7 @@ java_proto_library(
 
 proto_compile(
     name = "py",
-    langs = ["//bzl/python"],
+    langs = ["//python"],
     output_to_workspace = False,
     protos = [":protos"],
     with_grpc = False,
@@ -74,7 +74,7 @@ proto_compile(
 
 proto_compile(
     name = "ruby",
-    langs = ["//bzl/ruby"],
+    langs = ["//ruby"],
     output_to_workspace = False,
     protos = [":protos"],
     with_grpc = False,

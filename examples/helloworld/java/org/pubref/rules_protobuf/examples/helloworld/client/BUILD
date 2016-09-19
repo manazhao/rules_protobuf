@@ -4,7 +4,7 @@ java_test(
     srcs = ["HelloWorldClientTest.java"],
     test_class = "org.pubref.rules_protobuf.examples.helloworld.client.HelloWorldClientTest",
     runtime_deps = [
-        "//bzl/java:netty_runtime",
+        "//java:netty_runtime_deps",
     ],
     deps = [
         ":client",
@@ -18,7 +18,7 @@ java_binary(
     main_class = "org.pubref.rules_protobuf.examples.helloworld.client.HelloWorldClient",
     runtime_deps = [
         ":client",
-        "//bzl/java:netty_runtime",
+        "//java:netty_runtime_deps",
     ],
 )
 
@@ -26,7 +26,7 @@ java_library(
     name = "client",
     srcs = ["HelloWorldClient.java"],
     deps = [
-        "//bzl/java:grpc_compiletime",
         "//examples/helloworld/proto:java",
+        "//java:grpc_compiletime_deps",
     ],
 )

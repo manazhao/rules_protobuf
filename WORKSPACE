@@ -47,24 +47,26 @@ csharp_repositories(use_local_mono = False)
 # Load self
 # ================================================================
 
-load("//bzl:cpp/rules.bzl", "cpp_proto_repositories")
+load("//protobuf:rules.bzl", "proto_repositories")
+
+proto_repositories()
+
+load("//cpp:rules.bzl", "cpp_proto_repositories")
 
 cpp_proto_repositories()
 
-load("//bzl:java/rules.bzl", "java_proto_repositories", "nano_proto_repositories")
+load("//java:rules.bzl", "java_proto_repositories", "nano_proto_repositories")
 
 java_proto_repositories()
 
 nano_proto_repositories()
 
-load("//bzl:go/rules.bzl", "go_proto_repositories")
+load("//go:rules.bzl", "go_proto_repositories")
 
 go_proto_repositories()
 
-load("//bzl:csharp/rules.bzl", "csharp_proto_repositories")
-
+load("//csharp:rules.bzl", "csharp_proto_repositories")
 csharp_proto_repositories()
 
-load("//bzl:grpc_gateway/rules.bzl", "grpc_gateway_proto_repositories")
-
+load("//grpc_gateway:rules.bzl", "grpc_gateway_proto_repositories")
 grpc_gateway_proto_repositories()

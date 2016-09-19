@@ -8,9 +8,8 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_test")
 #     GRPC_SWAGGER = "SWAGGER",
 # )
 
-load("//bzl:proto_compile.bzl", "proto_compile")
 load(
-    "//bzl:grpc_gateway/rules.bzl",
+    "//grpc_gateway:rules.bzl",
     "grpc_gateway_library",
     "grpc_gateway_binary",
     "GRPC_GATEWAY_DEPS",

@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-load("//bzl:go/rules.bzl", "GRPC_COMPILE_DEPS")
+load("//go:rules.bzl", "GRPC_COMPILE_DEPS")
 
 go_binary(
     name = "server",

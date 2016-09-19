@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_go//go:def.bzl", "go_test")
-load("//bzl:go/rules.bzl", "GRPC_COMPILE_DEPS")
+load("//go:rules.bzl", "GRPC_COMPILE_DEPS")
 
 go_test(
     name = "greeter_test",
