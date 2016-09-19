@@ -2,26 +2,24 @@
 
 | Rule | Description |
 | ---  | --- |
-| `cc_proto_library` | Generates and compiles protobuf source files. |
-| `cc_proto_compile` | Generates protobuf source files. |
+| `cpp_proto_repositories` | Load WORKSPACE dependencies. |
+| `{cc|cpp}_proto_library` | Generates and compiles protobuf source files. |
 
 ## Installation
 
-Enable cpp support by loading the set of cpp dependencies in your workspace.
+Enable C++ support by loading the dependencies in your workspace.
 
 ```python
-protobuf_repositories(
-  with_cpp=True,
-)
+load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
+cpp_protobuf_repositories()
 ```
-
 
 ## Usage of `cc_proto_library`
 
 Load the rule in your `BUILD` file:
 
 ```python
-load("@org_pubref_rules_protobuf//bzl:cpp/rules.bzl", "cc_proto_library")
+load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cc_proto_library")
 ```
 
 Invoke the rule.  Pass the set of protobuf source files to the
@@ -60,18 +58,17 @@ via:
 ```
 
 To get the list of required compile-time dependencies in other
-contexts for grpc-related code, load the class descriptor and use the
-`grpc.compile_deps` list:
+contexts for grpc-related code, load the list from the rules.bzl file:
 
 ```python
-load("@org_pubref_rules_protobuf//bzl:cpp/class.bzl", CPP = "CLASS")
+load("@org_pubref_rules_protobuf//cpp:rules.bzl", "GRPC_COMPILE_DEPS")
 
 cc_library(
   name = "mylib",
   srcs = ['MyApp.cpp'],
   deps = [
     ":protolib"
-  ] + CPP.grpc.compile_deps,
+  ] + GRPC_COMPILE_DEPS,
 )
 ```
 

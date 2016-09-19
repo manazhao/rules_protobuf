@@ -2,6 +2,7 @@
 
 | Rule | Description |
 | ---  | --- |
+| `java_proto_repositories` | Load WORKSPACE dependencies. |
 | `java_proto_library` | Generates and compiles protobuf source files. |
 | `java_proto_language_deps` | Aggregate deps from java-based `proto_language` rules. |
 

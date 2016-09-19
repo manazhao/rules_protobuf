@@ -1,9 +1,19 @@
 # `rules_protobuf` Python Support
 
+Generate python outputs as follows:
 
-| Rule | Description |
-| ---  | --- |
-| `python_proto_library` | Generates and compiles protobuf source files. |
+```python
+load("//protobuf:rules.bzl", "proto_compile")
 
-Support for python is limited to the proto_compile rule.  Semantics are
-identical to `cc_proto_compile`.
+proto_compile(
+    name = "py",
+    langs = [
+        "@org_pubref_rules_protobuf//python",
+    ],
+)
+
+```
+
+Support for a library rule is dependent on loading the workspace
+dependencies for the py_library rule which has not been implemented
+yet.

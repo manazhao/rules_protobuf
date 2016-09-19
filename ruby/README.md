@@ -1,9 +1,15 @@
 # `rules_protobuf` Ruby Support
 
+Generate ruby outputs as follows:
 
-| Rule | Description |
-| ---  | --- |
-| `ruby_proto_library` | Generates and compiles protobuf source files. |
+```python
+load("//protobuf:rules.bzl", "proto_compile")
 
-Support for ruby is limited to the proto_compile rule.  Semantics are
-identical to `cc_proto_compile`.
+proto_compile(
+    name = "rb",
+    langs = [
+        "@org_pubref_rules_protobuf//ruby",
+    ],
+)
+
+```
