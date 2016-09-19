@@ -19,7 +19,6 @@
 # $ sha256sum protoc-3.0.0-linux-x86_64.exe #linux
 # $ shasum -a256 protoc-3.0.0-osx-x86_64.exe # macosx
 
-
 REPOSITORIES = {
 
     ### intended to be compatible with loose json parser to generate documentation from this.

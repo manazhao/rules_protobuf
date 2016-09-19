@@ -1,62 +1,80 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//bzl:proto_language.bzl", "proto_language")
+load("//bzl:proto_language.bzl", "proto_language", "proto_language_deps")
+load("//bzl/java:rules.bzl", "java_proto_language_deps")
 
 proto_language(
     name = "java",
-    pb_file_extensions = [],
     output_to_jar = True,
-    supports_grpc = True,
-    grpc_plugin = "//third_party/protoc_gen_grpc_java:protoc_gen_grpc_java_bin",
+    pb_file_extensions = [],
     pb_compile_deps = [
         "@com_google_guava_guava//jar",
         "@com_google_protobuf_protobuf_java//jar",
     ],
+    pb_runtime_deps = [],
+    supports_grpc = True,
+    grpc_plugin = "//third_party/protoc_gen_grpc_java:protoc_gen_grpc_java_bin",
     grpc_compile_deps = [
         "@io_grpc_grpc_core//jar",
         "@io_grpc_grpc_protobuf//jar",
         "@io_grpc_grpc_stub//jar",
     ],
+    grpc_runtime_deps = [
+        "@io_grpc_grpc_netty//jar",
+        "@io_grpc_grpc_protobuf_lite//jar",
+        "@io_netty_netty_buffer//jar",
+        "@io_netty_netty_codec//jar",
+        "@io_netty_netty_codec_http2//jar",
+        "@io_netty_netty_common//jar",
+        "@io_netty_netty_handler//jar",
+        "@io_netty_netty_resolver//jar",
+        "@io_netty_netty_transport//jar",
+    ],
 )
 
-# load("//bzl:protoc.bzl", "proto_language")
+java_proto_language_deps(
+    name = "grpc_compiletime",
+    langs = [":java"],
+)
 
-# proto_language(
-#     name = "java",
-#     extends = "base",
-#     templates = [
-#         "//bzl:proto_compile.tpl",
-#     ],
-#     pb_file_extensions = [".srcjar"],
-#     output_to_jar = True,
-#     supports_pb = True,
-#     pb_compile_deps = [
-#         "@com_google_guava_guava//jar",
-#         "@com_google_protobuf_protobuf_java//jar",
-#     ],
-#     supports_grpc = True,
-#     grpc_plugin = "//third_party/protoc_gen_grpc_java:protoc_gen_grpc_java_bin",
-#     grpc_compile_deps = [
-#         "@com_google_guava_guava//jar",
-#         "@com_google_protobuf_protobuf_java//jar",
-#         "@io_grpc_grpc_core//jar",
-#         "@io_grpc_grpc_protobuf//jar",
-#         "@io_grpc_grpc_stub//jar",
-#     ],
-#     grpc_runtime_deps = [
-#         "@io_grpc_grpc_netty//jar",
-#         "@io_grpc_grpc_protobuf_lite//jar",
-#         "@io_netty_netty_buffer//jar",
-#         "@io_netty_netty_codec//jar",
-#         "@io_netty_netty_codec_http2//jar",
-#         "@io_netty_netty_common//jar",
-#         "@io_netty_netty_handler//jar",
-#         "@io_netty_netty_resolver//jar",
-#         "@io_netty_netty_transport//jar",
-#     ],
+java_proto_language_deps(
+    name = "netty_runtime",
+    langs = [":java"],
+    runtime_deps = True,
+)
 
-#     build_generated_files =
-# """
-#    pass
-# """
-# )
+proto_language(
+    name = "nano",
+    output_to_jar = True,
+    pb_plugin_name = "javanano",
+    pb_file_extensions = [],
+    supports_grpc = True,
+    pb_compile_deps = [
+        "@com_google_guava_guava//jar",
+        "@com_google_protobuf_protobuf_java//jar",
+        "@com_google_protobuf_nano_protobuf_javanano//jar",
+    ],
+    pb_options = [
+        "ignore_services=true"
+    ],
+    pb_runtime_deps = [],
+    grpc_plugin = "//third_party/protoc_gen_grpc_java:protoc_gen_grpc_java_bin",
+    grpc_compile_deps = [
+        "@io_grpc_grpc_core//jar",
+        "@io_grpc_grpc_protobuf//jar",
+        "@io_grpc_grpc_stub//jar",
+        "@com_google_protobuf_nano_protobuf_javanano//jar",
+        "@io_grpc_grpc_protobuf_nano//jar",
+    ],
+    grpc_runtime_deps = [
+        "@io_grpc_grpc_netty//jar",
+        "@io_grpc_grpc_protobuf_lite//jar",
+        "@io_netty_netty_buffer//jar",
+        "@io_netty_netty_codec//jar",
+        "@io_netty_netty_codec_http2//jar",
+        "@io_netty_netty_common//jar",
+        "@io_netty_netty_handler//jar",
+        "@io_netty_netty_resolver//jar",
+        "@io_netty_netty_transport//jar",
+    ],
+)

@@ -1,10 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//bzl:cpp/rules.bzl", "cc_proto_library")
-load("//bzl:go/rules.bzl", "go_proto_library")
-load("//bzl:python/rules.bzl", "py_proto_library")
+load("//bzl:cpp/rules.bzl",  "cc_proto_library")
+load("//bzl:go/rules.bzl",   "go_proto_library")
 load("//bzl:java/rules.bzl", "java_proto_library")
-load("//bzl:js/rules.bzl", "js_proto_compile")
 
 load("//bzl:proto_compile.bzl", "proto_compile")
 
@@ -13,18 +11,17 @@ filegroup(
     srcs = ["helloworld.proto"],
 )
 
-
-proto_compile(
-    name = "bufs",
-    protos = [":protos"],
-    deps = ["//examples/proto:bufs"],
-    lang = [
-        "//bzl/ruby",
-        "//bzl/java",
-        "//bzl/python",
-        "//bzl/cc",
-    ],
-)
+# proto_compile(
+#     name = "bufs",
+#     protos = [":protos"],
+#     deps = ["//examples/proto:bufs"],
+#     langs = [
+#         "//bzl/ruby",
+#         "//bzl/java",
+#         "//bzl/python",
+#         "//bzl/cpp",
+#     ],
+# )
 
 go_proto_library(
     name = "go",
@@ -36,16 +33,6 @@ go_proto_library(
     with_grpc = True,
 )
 
-# cc_proto_library(
-#     name = "cc",
-#     proto_deps = [
-#         "//examples/proto:cc",
-#     ],
-#     protos = [":protos"],
-#     verbose = 1,
-#     with_grpc = True,
-# )
-
 cc_proto_library(
     name = "cpp",
     proto_deps = [
@@ -54,13 +41,6 @@ cc_proto_library(
     protos = [":protos"],
     verbose = 0,
     with_grpc = True,
-)
-
-py_proto_library(
-    name = "py",
-    output_to_workspace = False,
-    protos = [":protos"],
-    with_grpc = False,
 )
 
 java_proto_library(
@@ -73,11 +53,30 @@ java_proto_library(
     with_grpc = True,
 )
 
-js_proto_compile(
-    name = "js",
-    proto_deps = [
-        "//examples/proto:js",
-    ],
+# proto_compile(
+#     name = "closure",
+#     langs = [
+#         "//bzl/js:closure"
+#     ],
+#     deps = [
+#         "//examples/proto:closure",
+#     ],
+#     protos = [":protos"],
+#     verbose = 1,
+# )
+
+proto_compile(
+    name = "py",
+    langs = ["//bzl/python"],
+    output_to_workspace = False,
     protos = [":protos"],
-    verbose = 1,
+    with_grpc = False,
+)
+
+proto_compile(
+    name = "ruby",
+    langs = ["//bzl/ruby"],
+    output_to_workspace = False,
+    protos = [":protos"],
+    with_grpc = False,
 )

@@ -1,7 +1,10 @@
-load("//bzl:classlist.bzl", "CLASSES")
+def _capitalize(s):
+  return s[0:1].upper() + s[1:]
 
-PROTOC = Label("//external:protoc")
-MAX_INVOKE_DEPTH = range(4)
+
+def _pascal_case(s):
+  return "".join([_capitalize(part) for part in s.split("_")])
+
 
 def _emit_params_file_action(ctx, path, mnemonic, cmds):
   """Helper function that writes a potentially long command list to a file.
@@ -21,55 +24,7 @@ def _emit_params_file_action(ctx, path, mnemonic, cmds):
   return f
 
 
-def invokeall(cls, name, run, builder):
-  """Invoke the all methods found on the class chain"""
-  current = cls
-  result = None
-  for i in MAX_INVOKE_DEPTH:
-    if current == None:
-      return result
-    if hasattr(current, name):
-      method = getattr(current, name)
-      result = method(cls, run, builder)
-      if not hasattr(current, "parent"):
-        return result
-      current = current.parent
-  return result
-
-
-def invokesuper(cls, name, run, builder):
-  """Invoke the first method found on the superclass chain"""
-  current = getattr(cls, "parent", None)
-  result = None
-  for i in MAX_INVOKE_DEPTH:
-    if current == None:
-      return result
-    if hasattr(current, name):
-      method = getattr(current, name)
-      return method(cls, run, builder)
-    if not hasattr(current, "parent"):
-      return result
-    current = current.parent
-  return result
-
-
-def invoke(cls, name, run, builder):
-  """Invoke the first method found on the class chain"""
-  current = cls
-  result = None
-  for i in MAX_INVOKE_DEPTH:
-    if current == None:
-      return result
-    if hasattr(current, name):
-      method = getattr(current, name)
-      return method(cls, run, builder)
-    if not hasattr(current, "parent"):
-      return result
-    current = current.parent
-  return result
-
-
-def get_offset_path(root, path):
+def _get_offset_path(root, path):
   """Adjust path relative to offset"""
 
   if path.startswith("/"):
@@ -91,16 +46,276 @@ def get_offset_path(root, path):
   depth = root.count('/') + 1
   return "../" * depth + path
 
+def _get_import_mappings_for(files, prefix, label):
+  """For a set of files that belong the the given context label, create a mapping to the given prefix."""
+  # Go-specific code crept in here.
+  # if run.lang.prefix and run.lang.prefix.go_prefix:
+  #     options += get_go_importmap_options(run, builder)
 
-def get_outdir(ctx, lang, execdir):
+  mappings = {}
+  for file in files:
+    src = file.short_path
+    # File in an external repo looks like:
+    # '../WORKSPACE/SHORT_PATH'.  We want just the SHORT_PATH.
+    if src.startswith("../"):
+      parts = src.split("/")
+      src = "/".join(parts[2:])
+    dst = [prefix, label.package]
+    name_parts = label.name.split(".")
+    # special case to elide last part if the name is
+    # 'go_default_library.pb'
+    if name_parts[0] != "go_default_library":
+      dst.append(name_parts[0])
+    mappings[src] = "/".join(dst)
+
+  return mappings
+
+
+def _get_go_importmap_options(run, builder):
+  """Override behavior to add plugin options before building the --go_out option"""
+
+  lang = run.lang
+  go_prefix = lang.prefix.go_prefix
+  mappings = lang.import_map
+  mappings += _get_import_mappings_for(run.data.protos,go_prefix, run.data.label)
+
+  # Then add in the transitive set from dependent rules.
+  for unit in run.data.transitive_units:
+    # Map to this go_prefix if within same workspace, otherwise
+    # use theirs.
+    prefix = go_prefix
+    if unit.workspace_name != run.data.workspace_name:
+      prefix = unit.prefix
+    #print("protos %s, prefix %s, label: %s" % (unit.data.protos, prefix, unit.data.label))
+    mappings += _get_import_mappings_for(unit.data.protos, prefix, unit.data.label)
+
+  if run.data.verbose > 1:
+    print("go_import_map: %s" % mappings)
+
+  opts = ["M%s=%s" % (k, v) for k, v in mappings.items()]
+  return opts
+
+
+def _build_output_jar(run, builder):
+  """Build a jar file for protoc to dump java classes into."""
+  ctx = run.ctx
+  execdir = run.data.execdir
+  name = run.lang.name
+  protojar = ctx.new_file("%s_%s.jar" % (run.data.label.name, name))
+  builder["outputs"] += [protojar]
+  builder[name + "_jar"] = protojar
+  builder[name + "_outdir"] = _get_offset_path(execdir, protojar.path)
+
+
+def _build_output_library(run, builder):
+  """Build a library.js file for protoc to dump java classes into."""
+  ctx = run.ctx
+  execdir = run.data.execdir
+  name = run.lang.name
+  jslib = ctx.new_file(run.data.label.name + run.lang.pb_file_extensions[0])
+  builder["jslib"] = [jslib]
+  builder["outputs"] += [jslib]
+
+  parts = jslib.short_path.rpartition("/")
+  filename = "/".join([parts[0], run.data.label.name])
+  library_path = _get_offset_path(run.data.execdir, filename)
+  builder[name + "_pb_options"] += ["library=" + library_path]
+
+
+def _build_output_srcjar(run, builder):
+  ctx = run.ctx
+  name = run.lang.name
+  protojar = builder[name + "_jar"]
+  srcjar_name = "%s_%s.srcjar" % (run.data.label.name, name)
+  srcjar = ctx.new_file("%s_%s.srcjar" % (run.data.label.name, name))
+  run.ctx.action(
+    mnemonic = "CpJarToSrcJar",
+    inputs = [protojar],
+    outputs = [srcjar],
+    arguments = [protojar.path, srcjar.path],
+    command = "cp $1 $2",
+  )
+
+  # Remove protojar from the list of provided outputs
+  builder["outputs"] = [e for e in builder["outputs"] if e != protojar]
+  builder["outputs"] += [srcjar]
+
+  if run.data.verbose > 2:
+    print("Copied jar %s srcjar to %s" % (protojar.path, srcjar.path))
+
+
+def _build_output_files(run, builder):
+  """Build a list of files we expect to be generated."""
+
+  ctx = run.ctx
+  protos = run.data.protos
+  if not protos:
+    fail("Empty proto input list.", "protos")
+
+  exts = run.lang.pb_file_extensions + run.lang.grpc_file_extensions
+
+  for file in protos:
+    base = file.basename[:-len(".proto")]
+    if run.lang.output_file_style == 'pascal':
+      base = _pascal_case(base)
+    if run.lang.output_file_style == 'capitalize':
+      base = _capitalize(base)
+    for ext in exts:
+      pbfile = ctx.new_file(base + ext)
+      builder["outputs"] += [pbfile]
+
+
+def _build_output_libdir(run, builder):
+  ctx = run.ctx
+  execdir = run.data.execdir
+  name = run.lang.name
+  ns = "Foo"
+  builder[name + "_pb_options"] += ["base_namespace=" + ns]
+  _build_output_files(run, builder)
+
+
+def _build_descriptor_set(data, builder):
+  """Build a list of files we expect to be generated."""
+  builder["args"] += ["--descriptor_set_out=" + data.descriptor_set.path]
+
+
+def _build_plugin_invocation(name, plugin, execdir, builder):
+  """Add a '--plugin=NAME=PATH' argument if the language descriptor
+  requires one.
+  """
+  tool = _get_offset_path(execdir, plugin.path)
+  builder["inputs"] += [plugin]
+  builder["args"] += ["--plugin=protoc-gen-%s=%s" % (name, tool)]
+
+
+def _build_protobuf_invocation(run, builder):
+  """Build a --plugin option if required for basic protobuf generation.
+  Args:
+    cls (struct): the class object.
+    run (struct): the compilation run object.
+    builder (dict): the compilation builder data.
+  Built-in language don't need this.
+  """
+  lang = run.lang
+  if not lang.pb_plugin:
+    return
+  name = lang.pb_plugin_name or lang.name
+  _build_plugin_invocation(name,
+                           lang.pb_plugin,
+                           run.data.execdir,
+                           builder)
+
+
+def _build_grpc_invocation(run, builder):
+  """Build a --plugin option if required for grpc service generation
+  Args:
+    cls (struct): the class object.
+    run (struct): the compilation run object.
+    builder (dict): the compilation builder data.
+  Built-in language don't need this.
+  """
+  lang = run.lang
+  if not lang.grpc_plugin:
+    return
+  name = lang.grpc_plugin_name or "grpc-" + lang.name
+  _build_plugin_invocation(name,
+                           lang.grpc_plugin,
+                           run.data.execdir,
+                           builder)
+
+
+def _get_mappings(files, label, prefix):
+  """For a set of files that belong the the given context label, create a mapping to the given prefix."""
+  mappings = {}
+  for file in files:
+    src = file.short_path
+    # File in an external repo looks like:
+    # '../WORKSPACE/SHORT_PATH'.  We want just the SHORT_PATH.
+    if src.startswith("../"):
+      parts = src.split("/")
+      src = "/".join(parts[2:])
+    dst = [prefix, label.package]
+    name_parts = label.name.split(".")
+    # special case to elide last part if the name is
+    # 'go_default_library.pb'
+    if name_parts[0] != "go_default_library":
+      dst.append(name_parts[0])
+    mappings[src] = "/".join(dst)
+
+  return mappings
+
+def _build_base_namespace(run, builder):
+  pass
+
+def _build_importmappings(run, builder):
+  """Override behavior to add plugin options before building the --go_out option"""
+  ctx = run.ctx
+  go_prefix = run.lang.prefix
+
+  opts = []
+  # Add in the 'plugins=grpc' option to the protoc-gen-go plugin if
+  # the user wants grpc.
+  if run.data.with_grpc:
+    opts.append("plugins=grpc")
+
+  # Build the list of import mappings.  Start with any configured on
+  # the rule by attributes.
+  mappings = run.lang.importmap + run.data.importmap
+  mappings += _get_mappings(run.data.protos, run.data.label, go_prefix)
+
+  # Then add in the transitive set from dependent rules. TODO: just
+  # pass the import map transitively rather than recomputing it.
+  for unit in run.data.transitive_units:
+    # Map to this go_prefix if within same workspace, otherwise use theirs.
+    prefix = go_prefix if unit.data.workspace_name == run.data.workspace_name else unit.data.prefix
+    mappings += _get_mappings(unit.data.protos, unit.data.label, prefix)
+
+  if run.data.verbose > 1:
+    print("go_importmap: %s" % mappings)
+
+  for k, v in mappings.items():
+    opts += ["M%s=%s" % (k, v)]
+
+  builder[run.lang.name + "_pb_options"] += opts
+
+
+def _build_plugin_out(name, outdir, options, builder):
+  """Build the --{lang}_out argument for a given plugin."""
+  arg = outdir
+  if options:
+    arg = ",".join(options) + ":" + arg
+  builder["args"] += ["--%s_out=%s" % (name, arg)]
+
+
+def _build_protobuf_out(run, builder):
+  """Build the --{lang}_out option"""
+  lang = run.lang
+  name = lang.pb_plugin_name or lang.name
+  outdir = builder.get(lang.name + "_outdir", run.outdir)
+  options = builder.get(lang.name + "_pb_options", [])
+
+  _build_plugin_out(name, outdir, options, builder)
+
+
+def _build_grpc_out(run, builder):
+  """Build the --{lang}_out grpc option"""
+  lang = run.lang
+  name = lang.grpc_plugin_name or "grpc-" + lang.name
+  outdir = builder.get(lang.name + "_outdir", run.outdir)
+  options = builder.get(lang.name + "_grpc_options", [])
+
+  _build_plugin_out(name, outdir, options, builder)
+
+
+def _get_outdir(ctx, lang, execdir):
   if ctx.attr.output_to_workspace:
     outdir = "."
   else:
     outdir = ctx.var["GENDIR"]
-  return get_offset_path(execdir, outdir)
+  return _get_offset_path(execdir, outdir)
 
 
-def get_execdir(ctx):
+def _get_execdir(ctx):
 
   # Proto root is by default the bazel execution root for this
   # workspace.
@@ -148,9 +363,9 @@ def _protoc(ctx, unit):
 
   execdir = unit.data.execdir
 
-  protoc = get_offset_path(execdir, unit.compiler.path)
-  imports = ["--proto_path=" + get_offset_path(execdir, i) for i in unit.imports]
-  srcs = [get_offset_path(execdir, p.path) for p in unit.data.protos]
+  protoc = _get_offset_path(execdir, unit.compiler.path)
+  imports = ["--proto_path=" + _get_offset_path(execdir, i) for i in unit.imports]
+  srcs = [_get_offset_path(execdir, p.path) for p in unit.data.protos]
   protoc_cmd = [protoc] + list(unit.args) + imports + srcs
   manifest = [f.short_path for f in unit.outputs]
 
@@ -214,7 +429,7 @@ def _proto_compile_impl(ctx):
     print("proto_compile %s:%s"  % (ctx.build_file_path, ctx.label.name))
 
   # Get proto root.  I think we are using this for side effect only.
-  execdir = get_execdir(ctx)
+  execdir = _get_execdir(ctx)
   execdir = "." # test this with/without
 
   # Propogate proto deps compilation units.
@@ -230,6 +445,8 @@ def _proto_compile_impl(ctx):
     prefix = ":".join([ctx.label.package, ctx.label.name]),
     execdir = execdir,
     protos = ctx.files.protos,
+    descriptor_set = ctx.outputs.descriptor_set,
+    importmap = ctx.attr.importmap,
     pb_options = ctx.attr.pb_options,
     grpc_options = ctx.attr.grpc_options,
     verbose = ctx.attr.verbose,
@@ -241,53 +458,52 @@ def _proto_compile_impl(ctx):
   # Mutable global state to be populated by the classes.
   builder = {
     "args": [], # list of string
-    "pb_options": data.pb_options,
-    "grpc_options": data.grpc_options,
     "imports": ctx.attr.imports + [execdir],
-    "inputs": ctx.files.protos + ctx.files.inputs,
+    "inputs": ctx.files.protos,
     "outputs": [],
   }
 
   # Build a list of structs that will be processed in this compiler
   # run.
   runs = []
-  for l in ctx.attr.lang:
+  for l in ctx.attr.langs:
     lang = l.proto_language
-    cls = CLASSES.get(lang.extends)
-    if not cls:
-      fail("Unknown class: %s" % lang.extends, "extends")
     runs.append(struct(
       ctx = ctx,
-      cls = cls,
-      outdir = get_outdir(ctx, lang, execdir),
+      outdir = _get_outdir(ctx, lang, execdir),
       lang = lang,
       data = data,
       exts = lang.pb_file_extensions + lang.grpc_file_extensions,
       output_to_jar = lang.output_to_jar,
     ))
 
-    builder["imports"] += lang.pb_imports + lang.grpc_imports
     builder["inputs"] += lang.pb_inputs + lang.grpc_inputs
-    builder["pb_options"] += lang.pb_options
-    builder["grpc_options"] += lang.pb_options
+    builder["imports"] += lang.pb_imports + lang.grpc_imports
+    builder[lang.name + "_pb_options"] = lang.pb_options + data.pb_options
+    builder[lang.name + "_grpc_options"] = lang.pb_options + data.grpc_options
+
+    #print("grpc_inputs %s" % ctx.attr.grpc_inputs)
+
+  _build_descriptor_set(data, builder)
 
   for run in runs:
-    cls = run.cls
     if run.lang.output_to_jar:
-      invoke(cls, "build_output_jar", run, builder)
+      _build_output_jar(run, builder)
+    elif run.lang.output_to_library:
+      _build_output_library(run, builder)
+    elif run.lang.output_to_libdir:
+      _build_output_libdir(run, builder)
     else:
-      invoke(cls, "build_output_files", run, builder)
-    invoke(cls, "build_imports", run, builder)
+      _build_output_files(run, builder)
+    if run.lang.prefix:
+      _build_importmappings(run, builder)
     if run.lang.supports_pb:
-      invoke(cls, "build_protobuf_invocation", run, builder)
-      invoke(cls, "build_protobuf_out", run, builder)
+      _build_protobuf_invocation(run, builder)
+      _build_protobuf_out(run, builder)
 
-    if data.with_grpc and run.lang.supports_grpc:
-      invoke(cls, "build_grpc_invocation", run, builder)
-      invoke(cls, "build_grpc_out", run, builder)
-  #     if ctx.attr.verbose > 2:
-  #       print("gen_" + cls.name + "_grpc = yes")
-  #   invoke("build_inputs", cls, self)
+    if not run.lang.pb_plugin_implements_grpc and (data.with_grpc and run.lang.supports_grpc):
+      _build_grpc_invocation(run, builder)
+      _build_grpc_out(run, builder)
 
   # Build final immutable for rule and transitive beyond
   unit = struct(
@@ -296,23 +512,15 @@ def _proto_compile_impl(ctx):
     args = set(builder["args"]),
     imports = set(builder["imports"]),
     inputs = set(builder["inputs"]),
-    outputs = set(builder["outputs"] + ctx.outputs.outs),
+    outputs = set(builder["outputs"] + [ctx.outputs.descriptor_set]),
   )
 
   # Run protoc
   _protoc(ctx, unit)
 
   for run in runs:
-    cls = run.cls
     if run.lang.output_to_jar:
-      invoke(cls, "build_output_srcjar", run, builder)
-
-  # # Postprocessing for all requested languages.
-  # for l in ctx.attr.lang:
-  #   lang = l.proto_language
-  #   cls = CLASSES.get(lang.extends)
-  #   self["lang"] = lang
-  #   invoke("post_execute", cls, self)
+      _build_output_srcjar(run, builder)
 
   files = set(builder["outputs"])
 
@@ -327,7 +535,7 @@ def _proto_compile_impl(ctx):
 proto_compile = rule(
   implementation = _proto_compile_impl,
   attrs = {
-    "lang": attr.label_list(
+    "langs": attr.label_list(
       providers = ["proto_language"],
       allow_files = False,
       mandatory = True,
@@ -345,15 +553,18 @@ proto_compile = rule(
     ),
     "root": attr.string(),
     "imports": attr.string_list(),
-    "inputs": attr.label_list(), # additional required files
+    "importmap": attr.string_dict(),
+    "inputs": attr.label_list(
+      allow_files = True,
+    ),
     "pb_options": attr.string_list(),
     "grpc_options": attr.string_list(),
     "output_to_workspace": attr.bool(),
     "verbose": attr.int(),
     "with_grpc": attr.bool(default = True),
-    # Concession to golang until I think of a better method to extend
-    # attributes for compile rules.
-    "outs": attr.output_list(),
+  },
+  outputs = {
+    "descriptor_set": "%{name}.descriptor_set",
   },
   output_to_genfiles = True, # this needs to be set for cc-rules.
 )

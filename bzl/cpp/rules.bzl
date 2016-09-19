@@ -1,9 +1,35 @@
+load("//bzl:require.bzl", "require")
 load("//bzl:proto_compile.bzl", "proto_compile")
-load("//bzl:cpp/class.bzl", "PB_COMPILE_DEPS", "GRPC_COMPILE_DEPS")
+load("//bzl:proto_repositories.bzl", "proto_repositories")
 
-def cc_proto_library(
+def cpp_proto_repositories(
+    lang_requires = [
+      "external_protobuf_clib",
+      "gtest",
+      "grpc",
+      "zlib",
+      "external_zlib",
+      "nanopb",
+      "external_nanopb",
+      "boringssl",
+      "libssl",
+      "external_protobuf_compiler",
+      "third_party_protoc",
+      "external_protoc_gen_grpc_cpp",
+    ], **kwargs):
+  proto_repositories(lang_requires = lang_requires, **kwargs)
+
+PB_COMPILE_DEPS = [
+    "//external:protobuf_clib",
+]
+
+GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
+    "@com_github_grpc_grpc//:grpc++",
+]
+
+def cpp_proto_library(
     name,
-    lang = ["//bzl/cpp"],
+    langs = ["//bzl/cpp"],
     protos = [],
     imports = [],
     inputs = [],
@@ -33,7 +59,7 @@ def cc_proto_library(
     "name": name + ".pb",
     "protos": protos,
     "deps": [dep + ".pb" for dep in proto_deps],
-    "lang": lang,
+    "langs": langs,
     "imports": imports,
     "inputs": inputs,
     "pb_options": pb_options,
@@ -47,7 +73,7 @@ def cc_proto_library(
   if pb_plugin:
     proto_compile_args["pb_plugin"] = pb_plugin
   if grpc_plugin:
-    proto_compile_args["grpc_plugin"] = pb_plugin
+    proto_compile_args["grpc_plugin"] = grpc_plugin
 
   proto_compile(**proto_compile_args)
 
@@ -56,3 +82,6 @@ def cc_proto_library(
     srcs = srcs + [name + ".pb"],
     deps = list(set(deps + proto_deps + compile_deps)),
     **kwargs)
+
+# Alias for cpp_proto_library
+cc_proto_library = cpp_proto_library

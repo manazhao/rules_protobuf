@@ -1,14 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
 load("//bzl:proto_compile.bzl", "proto_compile")
-#load("//bzl:proto_library.bzl", "proto_library")
 
-load("//bzl:cpp/rules.bzl", "cc_proto_library")
-load("//bzl:csharp/rules.bzl", "csharp_proto_library")
-load("//bzl:go/rules.bzl", "go_proto_library")
-load("//bzl:java/rules.bzl", "java_proto_library")
-load("//bzl:ruby/rules.bzl", "ruby_proto_library")
-load("//bzl:js/rules.bzl", "js_proto_compile")
+load("//bzl:cpp/rules.bzl",   "cc_proto_library")
+#load("//bzl:csharp/rules.bzl", "csharp_proto_library")
+load("//bzl:go/rules.bzl",     "go_proto_library")
+load("//bzl:java/rules.bzl",   "java_proto_library")
+load("//bzl:objc/rules.bzl",   "objc_proto_library")
+load("//bzl:js/rules.bzl",   "js_proto_library")
+
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar", "pkg_deb")
 
 filegroup(
     name = "protos",
@@ -23,32 +24,23 @@ go_proto_library(
     verbose = 1,
 )
 
-# cc_proto_library(
-#     name = "cc",
+# proto_compile(
+#     name = "bufs",
 #     protos = [":protos"],
-#     verbose = 1,
+#     langs = [
+#         "//bzl/ruby",
+#         "//bzl/java",
+#         "//bzl/java:nano",
+#         "//bzl/python",
+#         "//bzl/cpp",
+#         "//bzl/objc",
+#         "//bzl/js:closure",
+#         "//bzl/js:commonjs",
+#         "//bzl/grpc_gateway:pb_gateway",
+#     ],
+#     verbose = 2,
+#     with_grpc = True,
 # )
-
-# Work-in-progress.  This must be called with ':rb.pb' due to lack of
-# implementing library rule for the moment.
-#
-ruby_proto_library(
-    name = "rb",
-    protos = [":protos"],
-    verbose = 0,
-)
-
-proto_compile(
-    name = "bufs",
-    protos = [":protos"],
-    lang = [
-        "//bzl/ruby",
-        "//bzl/java",
-        "//bzl/python",
-        "//bzl/cpp",
-        "//bzl/go",
-    ],
-)
 
 cc_proto_library(
     name = "cpp",
@@ -61,18 +53,70 @@ java_proto_library(
     verbose = 0,
 )
 
-js_proto_compile(
-    name = "js",
+# objc_proto_library(
+#     name = "objc",
+#     protos = [":protos"],
+#     verbose = 0,
+# )
+
+# proto_compile(
+#     name = "closure",
+#     langs = ["//bzl/js:closure"],
+#     protos = [":protos"],
+#     verbose = 0,
+# )
+
+# proto_compile(
+#     name = "closurelib",
+#     langs = ["//bzl/js:closure"],
+#     protos = [":protos"],
+#     verbose = 0,
+# )
+
+# proto_compile(
+#     name = "commonjs",
+#     langs = ["//bzl/js:commonjs"],
+#     protos = [":protos"],
+#     verbose = 0,
+# )
+
+# proto_compile(
+#     name = "browser",
+#     langs = ["//bzl/js:browser"],
+#     protos = [":protos"],
+#     verbose = 2,
+# )
+
+# proto_compile(
+#     name = "objcc",
+#     langs = ["//bzl/objc"],
+#     protos = [":protos"],
+#     verbose = 1,
+# )
+
+# proto_compile(
+#     name = "csharp",
+#     langs = ["//bzl/csharp"],
+#     protos = [":protos"],
+#     verbose = 1,
+# )
+
+proto_compile(
+    name = "rb",
+    langs = ["//bzl/ruby"],
     protos = [":protos"],
     verbose = 0,
 )
 
-# Work-in-progress. This must be called with ':cs.pb' due to lack of
-# implementing library rule for the moment.  It also gets placed in
-# the outdir directly rather than the package dir.
-#
+# pkg_tar(
+#     name = "js_tar",
+#     files = [
+#         ":closurelib",
+#     ],
+# )
+
 # csharp_proto_library(
-#     name = "csharp",
+#     name = "cs",
 #     protos = [":protos"],
 #     verbose = 1,
 # )

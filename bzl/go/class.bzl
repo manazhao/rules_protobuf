@@ -1,34 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("//bzl:base/class.bzl", BASE = "CLASS")
-#load("//bzl:proto_compile.bzl", "invokesuper")
-load("//bzl:util.bzl", "invokesuper")
-
-
-def implement_compile_attributes(lang, self):
-    """Override attributes for the X_proto_compile rule"""
-    invokesuper("implement_compile_attributes", lang, self)
-
-    attrs = self["attrs"]
-
-    # go_prefix is necessary for protoc-gen-go import mapping of dependent protos.
-    attrs["go_prefix"] = attr.label(
-        providers = ["go_prefix"],
-        default = Label(
-            "//:go_prefix",
-            relative_to_caller_repository = True,
-        ),
-        allow_files = False,
-        cfg = HOST_CFG,
-    )
-
-    attrs["go_import_map"] = attr.string_dict()
-
-
-def build_package_prefix(lang, self):
-    ctx = self["ctx"]
-    self["prefix"] = ctx.attr.go_prefix.go_prefix
-    print("PREFIX: " + self["prefix"])
-
+load("//bzl:generic/class.bzl", GENERIC = "CLASS")
+load("//bzl/internal:util.bzl", "invokesuper")
 
 def get_mappings_for(files, label, prefix):
     """For a set of files that belong the the given context label, create a mapping to the given prefix."""
@@ -54,17 +26,17 @@ def get_mappings_for(files, label, prefix):
 def build_protobuf_out(cls, run, builder):
     """Override behavior to add plugin options before building the --go_out option"""
     ctx = run.ctx
-    go_prefix = run.lang.go_prefix
+    go_prefix = run.lang.prefix
 
     opts = []
     # Add in the 'plugins=grpc' option to the protoc-gen-go plugin if
     # the user wants grpc.
-    if run.with_grpc:
+    if run.data.with_grpc:
         opts.append("plugins=grpc")
 
     # Build the list of import mappings.  Start with any configured on
     # the rule by attributes.
-    mappings = run.lang.go_importmap
+    mappings = run.lang.importmap
     mappings += get_mappings_for(run.data.protos, run.data.label, go_prefix)
 
     # Then add in the transitive set from dependent rules. TODO: just
@@ -90,8 +62,18 @@ def build_grpc_out(cls, run, builder):
     pass
 
 
+PB_COMPILE_DEPS = [
+    "@com_github_golang_protobuf//:proto",
+]
+
+GRPC_COMPILE_DEPS = PB_COMPILE_DEPS + [
+    "@com_github_golang_glog//:go_default_library",
+    "@org_golang_google_grpc//:go_default_library",
+    "@org_golang_x_net//:context",
+]
+
 CLASS = struct(
-    parent = BASE,
+    parent = GENERIC,
     name = "go",
 
     protobuf = struct(
@@ -125,7 +107,7 @@ CLASS = struct(
 
     build_grpc_out = build_grpc_out,
     build_protobuf_out = build_protobuf_out,
-    build_package_prefix = build_package_prefix,
-    implement_compile_attributes = implement_compile_attributes,
-    library = go_library,
+    #build_package_prefix = build_package_prefix,
+    #implement_compile_attributes = implement_compile_attributes,
+    #library = go_library,
 )
