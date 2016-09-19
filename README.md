@@ -90,7 +90,7 @@ proto_repositories()
 
 ## 2. Add protobuf rules to your BUILD file
 
-TO build a java-based gRPC library:
+To build a java-based gRPC library:
 
 ```python
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_library")
@@ -141,11 +141,7 @@ key will override those found in the file.  For example, to load a
 different version of https://github.com/golang/protobuf, provide a
 different commit ID:
 
-> Refer to [protobuf/repositories.bzl][repositories.bzl] file for
-> the set of external dependencies that will be available to your
-> project.
-
-```
+```python
 load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
 cc_proto_repositories(
   overrides = {
@@ -161,7 +157,7 @@ your workspace that rules_protobuf will attempt to load, causing a
 collision.  To prevent rules_protobuf from loading specific external
 workspaces, name them in the `excludes` list:
 
-```
+```python
 load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
 go_proto_repositories(
   excludes = [
@@ -211,7 +207,7 @@ proto_language(
    # The plugin binary
    pb_plugin = "//external/protoc-gen-php",
    # File extensions that the plugin generates
-   pb_file_extensions = [".pb.php"],
+   pb_file_extensions = ["_pb.php"],
    # Optional default plugin options
    pb_options = [],
    # Optional default imports
