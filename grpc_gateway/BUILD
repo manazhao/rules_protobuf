@@ -40,3 +40,21 @@ proto_language(
     ],
     prefix = "//:go_prefix",
 )
+
+proto_language(
+    name = "swagger",
+    pb_file_extensions = [".swagger.json"],
+    pb_plugin = "@com_github_grpc_ecosystem_grpc_gateway//:protoc-gen-swagger_bin",
+    importmap = {
+        "google/api/annotations.proto": "github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api",
+    },
+    pb_inputs = [
+        "@com_github_grpc_ecosystem_grpc_gateway//:googleapi_protos",
+    ],
+    pb_imports = [
+        "external/com_github_grpc_ecosystem_grpc_gateway/third_party/googleapis/",
+        "external/com_github_google_protobuf/src/",
+    ],
+    supports_grpc = True,
+    prefix = "//:go_prefix",
+)

@@ -22,8 +22,8 @@ Bazel | rules_protobuf | gRPC |
 | [Objective-C](objc)          | yes (4)      |           |          |
 | [Python](python)             | yes          |           |          |
 | [Ruby](ruby)                 | yes          |           |          |
-| [gRPC gateway](grpc_gateway) | yes          | [grpc_gateway_proto_library](grpc_gateway) | yes |
-| [gRPC swagger](grpc_gateway) | yes          |           | yes |
+| [gRPC gateway](grpc_gateway) | [grpc_gateway_proto_library](grpc_gateway)   | [grpc_gateway_proto_library](grpc_gateway)<br/>[grpc_gateway_binary](grpc_gateway) | yes |
+| [gRPC swagger](grpc_gateway) | [grpc_gateway_swagger_compile](grpc_gateway  |           | yes |
 
 1. Support for generation of protoc outputs via `proto_compile()` rule.
 

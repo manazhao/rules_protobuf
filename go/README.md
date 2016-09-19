@@ -69,9 +69,9 @@ To use the generated code in other libraries, you'll need to know the
 correct `import` path.  This import path has three parts (2 and 3 are
 related to the target pattern used to identify the rule):
 
-I. The go_prefix
-II. The path to the BUILD file
-III. The name of the target in the BUILD file.
+1. The go_prefix
+2. The path to the BUILD file
+3. The name of the target in the BUILD file.
 
 First, set the namespace of your code in the root `BUILD` file via the
 `go_prefix` directive from `rules_go`:
@@ -94,7 +94,7 @@ To use this in `go/app_2`, the import path would be:
 ```go
 import (
     pb "github.com/my_organization_name/go/app_1/protolib"
-        I.............................. II...... III.....
+        1.............................. 2....... 3.......
 )
 ```
 
@@ -112,5 +112,6 @@ func main() {
 }
 ```
 
-An alternative strategy is to use the magic `go_default_library` for
-the protobuf library rule name, in which case part III is not needed.
+An alternative strategy is to use the magic token `go_default_library`
+for the protobuf library rule name, in which case part 3 is not
+needed.

@@ -19,7 +19,7 @@ GRPC_GATEWAY_DEPS = [
   "@com_github_golang_glog//:go_default_library",
 ]
 
-def grpc_gateway_library(
+def grpc_gateway_proto_library(
     name,
     pb_gateway = "//grpc_gateway:pb_gateway",
     langs = ["//grpc_gateway"],
@@ -117,6 +117,12 @@ def grpc_gateway_library(
     **kwargs)
 
 
+def grpc_gateway_proto_compile(langs = ["//grpc_gateway"], **kwargs):
+  proto_compile(langs = langs, **kwargs)
+
+def grpc_gateway_swagger_compile(langs = ["//grpc_gateway:swagger"], **kwargs):
+  proto_compile(langs = langs, with_grpc = False, **kwargs)
+
 def grpc_gateway_binary(name,
                         srcs = [],
                         deps = [],
@@ -126,7 +132,7 @@ def grpc_gateway_binary(name,
                         grpc_gateway_deps = GRPC_GATEWAY_DEPS,
                         **kwargs):
 
-  grpc_gateway_library(
+  grpc_gateway_proto_library(
     name = proto_label,
     protos = protos,
     proto_deps = proto_deps,
