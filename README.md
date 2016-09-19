@@ -14,16 +14,16 @@ Bazel | rules_protobuf | gRPC |
 | Language                     | Compile (1)  | Build (2) | gRPC (3) |
 | ---------------------------: | -----------: | --------: | -------- |
 | [C++](cpp)                   | [cc_proto_compile](cpp) | [cc_proto_library](cpp) | yes |
-| [C#](csharp) (4)             | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
 | [Go](go)                     | [go_proto_compile](go) | [go_proto_library](go) | yes |
 | [Java](java)                 | [java_proto_compile](java) | [java_proto_library](java) | yes |
 | [Android](java)              | yes          | [android_proto_library](android) | yes |
 | [Javascript](js)             | [closure_proto_compile](js)<br/>[commonjs_proto_compile](js) | [closure_proto_library](js)<br/>[commonjs_proto_library](js)          |          |
-| [Objective-C](objc) (4)      | [objc_proto_compile](objc) | [objc_proto_compile](objc)  |        |
 | [Python](python)             | [py_proto_compile](python)         |           |          |
 | [Ruby](ruby)                 | [ruby_proto_compile](ruby)          |           |          |
 | [gRPC gateway](grpc_gateway) | [grpc_gateway_proto_compile](grpc_gateway)   | [grpc_gateway_proto_library](grpc_gateway)<br/>[grpc_gateway_binary](grpc_gateway) | yes |
 | [gRPC swagger](grpc_gateway) | [grpc_gateway_swagger_compile](grpc_gateway) |           | yes |
+| [Objective-C](objc) (4)      | [objc_proto_compile](objc) | [objc_proto_compile](objc)  |        |
+| <a href="csharp" style="color:red">csharp</a><sup>4</sup> | [csharp_proto_compile](csharp)      | [csharp_proto_library](csharp) |          |
 
 1. Support for generation of protoc outputs via `proto_compile()` rule.
 
